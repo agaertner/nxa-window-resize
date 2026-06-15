@@ -1,6 +1,6 @@
 #ifndef NEXUSSERVICE_H
 #define NEXUSSERVICE_H
-//#include <nexus-rtapi/RTAPI.hpp>
+
 #include "nexus-core/Nexus.h"
 namespace Nekres::Services
 {
@@ -13,7 +13,6 @@ namespace Nekres::Services
 			{
 				m_instance = this;
 				m_nexus = (NexusLinkData_t*)m_api->DataLink_Get("DL_NEXUS_LINK");
-				//m_rtdata = (RTAPI::RealTimeData*)m_api->DataLink_Get(DL_RTAPI);
 
 				m_api->Events_Subscribe(ADDON_LOADED, OnAddonLoaded);
 				m_api->Events_Subscribe(ADDON_UNLOADED, OnAddonUnloaded);
@@ -26,10 +25,7 @@ namespace Nekres::Services
 				m_api->Events_Unsubscribe(ADDON_UNLOADED, OnAddonUnloaded);
 			}
 
-			/*RTAPI::RealTimeData* Data() const
-			{
-				return m_rtdata;
-			}*/
+
 
 			NexusLinkData_t* Core() const
 			{
@@ -41,7 +37,6 @@ namespace Nekres::Services
 
 			AddonAPI_t* m_api;
 			NexusLinkData_t* m_nexus;
-			//RTAPI::RealTimeData* m_rtdata;
 
 			static void OnAddonLoaded(void* aSignature)
 			{
@@ -49,10 +44,7 @@ namespace Nekres::Services
 				{
 					int* sig = static_cast<int*>(aSignature);
 					if (!sig) { return; }
-					//if (*sig == RTAPI_SIG)
-					//{
-					//	m_instance->m_rtdata = (RTAPI::RealTimeData*)m_instance->m_api->DataLink_Get(DL_RTAPI);
-					//}
+					// Do nothing
 				}
 			}
 
@@ -62,10 +54,7 @@ namespace Nekres::Services
 				{
 					int* sig = static_cast<int*>(aSignature);
 					if (!sig) { return; }
-					//if (*sig == RTAPI_SIG)
-					//{
-					//	m_instance->m_rtdata = nullptr;
-					//}
+					// Do nothing
 				}
 			}
 	};
