@@ -30,7 +30,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 
 extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef()
 {
-	AddonDef.Signature = -64917;
+	AddonDef.Signature = 81184211;
 	AddonDef.APIVersion = NEXUS_API_VERSION;
 	AddonDef.Name = "GW2 Window Resize";
 	AddonDef.Version.Major = V_MAJOR;
