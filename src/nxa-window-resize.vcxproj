@@ -76,8 +76,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;NXAWINDOWRESIZE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -93,8 +93,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;NXAWINDOWRESIZE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -110,7 +110,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;NXAWINDOWRESIZE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      
       <AdditionalIncludeDirectories>../submodules</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -120,26 +120,7 @@
       <EnableUAC>false</EnableUAC>
     </Link>
     <PreBuildEvent>
-      <Command>:: Check WMIC is available
-WMIC.EXE Alias /? &gt;NUL 2&gt;&amp;1 || GOTO s_error
-
-:: Use WMIC to retrieve date and time
-FOR /F "skip=1 tokens=1-6" %%G IN ('WMIC Path Win32_LocalTime Get Day^,Hour^,Minute^,Month^,Second^,Year /Format:table') DO (
-   IF "%%~L"=="" goto s_done
-      Set _yyyy=%%L
-      Set _mm=%%J
-      Set _dd=%%G
-      Set _hour=%%H
-      SET _minute=%%I
-)
-:s_done
-
-echo #pragma once &gt; Version.h
-echo #define V_MAJOR %_yyyy% &gt;&gt; Version.h
-echo #define V_MINOR %_mm% &gt;&gt; Version.h
-echo #define V_BUILD %_dd% &gt;&gt; Version.h
-SET /A var_res = %_hour% * 60 + %_minute%
-echo #define V_REVISION %var_res% &gt;&gt; Version.h</Command>
+      <Command>powershell -NoProfile -ExecutionPolicy Bypass -Command "$d=Get-Date; $rev=$d.Hour*60+$d.Minute; @('#pragma once', ('#define V_MAJOR ' + $d.Year), ('#define V_MINOR ' + $d.Month), ('#define V_BUILD ' + $d.Day), ('#define V_REVISION ' + $rev)) | Set-Content Version.h -Encoding utf8"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -150,8 +131,8 @@ echo #define V_REVISION %var_res% &gt;&gt; Version.h</Command>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;NXAWINDOWRESIZE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      
       <AdditionalIncludeDirectories>../submodules</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -163,31 +144,12 @@ echo #define V_REVISION %var_res% &gt;&gt; Version.h</Command>
       <EnableUAC>false</EnableUAC>
     </Link>
     <PreBuildEvent>
-      <Command>:: Check WMIC is available
-WMIC.EXE Alias /? &gt;NUL 2&gt;&amp;1 || GOTO s_error
-
-:: Use WMIC to retrieve date and time
-FOR /F "skip=1 tokens=1-6" %%G IN ('WMIC Path Win32_LocalTime Get Day^,Hour^,Minute^,Month^,Second^,Year /Format:table') DO (
-   IF "%%~L"=="" goto s_done
-      Set _yyyy=%%L
-      Set _mm=%%J
-      Set _dd=%%G
-      Set _hour=%%H
-      SET _minute=%%I
-)
-:s_done
-
-echo #pragma once &gt; Version.h
-echo #define V_MAJOR %_yyyy% &gt;&gt; Version.h
-echo #define V_MINOR %_mm% &gt;&gt; Version.h
-echo #define V_BUILD %_dd% &gt;&gt; Version.h
-SET /A var_res = %_hour% * 60 + %_minute%
-echo #define V_REVISION %var_res% &gt;&gt; Version.h</Command>
+      <Command>powershell -NoProfile -ExecutionPolicy Bypass -Command "$d=Get-Date; $rev=$d.Hour*60+$d.Minute; @('#pragma once', ('#define V_MAJOR ' + $d.Year), ('#define V_MINOR ' + $d.Month), ('#define V_BUILD ' + $d.Day), ('#define V_REVISION ' + $rev)) | Set-Content Version.h -Encoding utf8"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="core\WindowUtil.h" />
     <ClInclude Include="core\Addon.h" />
-    <ClInclude Include="core\services\Gw2MumbleService.h" />
     <ClInclude Include="core\services\NexusService.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -196,17 +158,15 @@ echo #define V_REVISION %var_res% &gt;&gt; Version.h</Command>
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
-    <ClInclude Include="..\submodules\nexus-mumble\Mumble.h" />
     <ClInclude Include="..\submodules\nexus-core\Nexus.h" />
-    <ClInclude Include="..\submodules\nexus-rtapi\RTAPI.h" />
     <ClInclude Include="nlohmann\json.hpp" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="core\WindowUtil.cpp" />
     <ClCompile Include="core\Addon.cpp" />
-    <ClCompile Include="core\services\Gw2Mumble.cpp" />
     <ClCompile Include="core\services\NexusService.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />

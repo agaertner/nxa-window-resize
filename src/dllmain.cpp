@@ -1,14 +1,14 @@
 #include <Windows.h>
-#include "resource.h"
+//#include "resource.h"
 #include "Version.h"
 #include "core/Addon.h"
 
-void AddonLoad(AddonAPI* aApi);
+void AddonLoad(AddonAPI_t* aApi);
 void AddonUnload();
 
 HMODULE hSelf;
 
-AddonDefinition AddonDef{};
+AddonDefinition_t AddonDef{};
 
 Nekres::Addon* g_addon = nullptr;
 
@@ -28,26 +28,26 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     return TRUE;
 }
 
-extern "C" __declspec(dllexport) AddonDefinition* GetAddonDef()
+extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef()
 {
-	AddonDef.Signature = 17;
+	AddonDef.Signature = -64917;
 	AddonDef.APIVersion = NEXUS_API_VERSION;
 	AddonDef.Name = "GW2 Window Resize";
 	AddonDef.Version.Major = V_MAJOR;
 	AddonDef.Version.Minor = V_MINOR;
 	AddonDef.Version.Build = V_BUILD;
 	AddonDef.Version.Revision = V_REVISION;
-	AddonDef.Author = "Nekres.1934";
-	AddonDef.Description = "Resizes the game when you switch it to windowed mode.";
+	AddonDef.Author = "Nekres.1943";
+	AddonDef.Description = "Resizes the GW2 window to a preferred size when you are switching to windowed mode.";
 	AddonDef.Load = AddonLoad;
 	AddonDef.Unload = AddonUnload;
-	AddonDef.Flags = EAddonFlags_None;
-	AddonDef.Provider = EUpdateProvider_GitHub;
+	AddonDef.Flags = EAddonFlags::AF_None;
+	AddonDef.Provider = EUpdateProvider::UP_GitHub;
 	AddonDef.UpdateLink = "https://github.com/agaertner/nxa-window-resize";
 	return &AddonDef;
 }
 
-void AddonLoad(AddonAPI* aApi)
+void AddonLoad(AddonAPI_t* aApi)
 {
 	g_addon = new Nekres::Addon(&AddonDef, aApi);
 }

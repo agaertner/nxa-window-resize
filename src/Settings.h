@@ -6,8 +6,7 @@
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
-extern const char* WINDOW_WIDTH;
-extern const char* WINDOW_HEIGHT;
+extern const char* SELECTED_RESOLUTION_INDEX;
 
 namespace Settings
 {
@@ -19,8 +18,7 @@ namespace Settings
 	/* Saves the settings. */
 	void Save(std::filesystem::path aPath);
 
-	extern float WindowWidth;
-	extern float WindowHeight;
+	extern int SelectedResolutionIndex;
 }
 
 #endif

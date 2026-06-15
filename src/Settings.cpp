@@ -1,12 +1,9 @@
 #include "Settings.h"
-
 #include "core/Addon.h"
-
 #include <filesystem>
 #include <fstream>
 
-const char* WINDOW_WIDTH = "WindowWidth";
-const char* WINDOW_HEIGHT = "WindowHeight";
+const char* SELECTED_RESOLUTION_INDEX = "SelectedResolutionIndex";
 
 namespace Settings
 {
@@ -27,19 +24,15 @@ namespace Settings
 			}
 			catch (json::parse_error& ex)
 			{
-				Nekres::Addon::Log(ELogLevel_WARNING, "Settings.json could not be parsed.");
-				Nekres::Addon::Log(ELogLevel_WARNING, ex.what());
+				Nekres::Addon::Log(LOGL_WARNING, "Settings.json could not be parsed.");
+				Nekres::Addon::Log(LOGL_WARNING, ex.what());
 			}
 		}
 		Settings::Mutex.unlock();
 
-		if (!Settings[WINDOW_WIDTH].is_null())
+		if (!Settings[SELECTED_RESOLUTION_INDEX].is_null())
 		{
-			Settings[WINDOW_WIDTH].get_to<float>(WindowWidth);
-		}
-		if (!Settings[WINDOW_HEIGHT].is_null())
-		{
-			Settings[WINDOW_HEIGHT].get_to <float>(WindowHeight);
+			Settings[SELECTED_RESOLUTION_INDEX].get_to<int>(SelectedResolutionIndex);
 		}
 	}
 	void Save(std::filesystem::path aPath)
@@ -53,6 +46,5 @@ namespace Settings
 		Settings::Mutex.unlock();
 	}
 
-	float WindowWidth = 1280.0f;
-	float WindowHeight = 920.0f;
+	int SelectedResolutionIndex = 16; // Default to 1920x1080
 }
