@@ -8,62 +8,81 @@ void Nekres::Addon::Render()
 	{
 		m_lastCheckTime = now;
 
-		HWND hWnd = FindWindowA("ArenaNet_Dx_Window_Class", NULL);
-		if (!hWnd) {
-			hWnd = FindWindowA("ArenaNet_Gr_Window_Class", NULL);
-		}
+		HWND hWnd = WindowUtil::GetWindowHandle();
 
 		if (hWnd)
 		{
 			bool isWindowed = WindowUtil::IsWindowedMode(hWnd);
-			if (isWindowed != m_isWindowedMode)
+			if (isWindowed && !m_isWindowedMode)
 			{
-				m_isWindowedMode = isWindowed;
-				if (m_isWindowedMode)
-				{
-					if (Settings::SelectedResolutionIndex >= 0 && Settings::SelectedResolutionIndex < WindowUtil::WindowSizesCount)
-					{
-						auto res = WindowUtil::WindowSizes[Settings::SelectedResolutionIndex];
-						WindowUtil::ResizeAndCenterWindow(hWnd, res.Width, res.Height);
-					}
-				}
+				ApplyResolution(Settings::ResolutionWidth, Settings::ResolutionHeight);
 			}
+			m_isWindowedMode = isWindowed;
 		}
+	}
+}
+
+void Nekres::Addon::ApplyResolution(int width, int height)
+{
+	Settings::ResolutionWidth = width;
+	Settings::ResolutionHeight = height;
+	Settings::Save(m_settingsPath);
+
+	HWND hWnd = WindowUtil::GetWindowHandle();
+	if (hWnd && WindowUtil::IsWindowedMode(hWnd))
+	{
+		int applyWidth = Settings::UseVerticalResolution ? height : width;
+		int applyHeight = Settings::UseVerticalResolution ? width : height;
+		WindowUtil::ResizeAndCenterWindow(hWnd, applyWidth, applyHeight);
 	}
 }
 
 void Nekres::Addon::Options()
 {
-	int resIndex = Settings::SelectedResolutionIndex;
-	if (resIndex < 0 || resIndex >= WindowUtil::WindowSizesCount) resIndex = 0;
+	int resIndex = -1;
+	for (int i = 0; i < WindowUtil::WindowSizesCount; ++i) {
+		if (WindowUtil::WindowSizes[i].Width == Settings::ResolutionWidth && WindowUtil::WindowSizes[i].Height == Settings::ResolutionHeight) {
+			resIndex = i;
+			break;
+		}
+	}
+
+	std::string currentPreview = WindowUtil::GetLabel(Settings::ResolutionWidth, Settings::ResolutionHeight);
+
 	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Preferred Window Size:");
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(150.0f);
 
-	if (ImGui::BeginCombo("##PreferredWindowSize", WindowUtil::WindowSizes[resIndex].Name.c_str()))
+	if (ImGui::BeginCombo("##PreferredWindowSize", currentPreview.c_str()))
 	{
+		if (m_customResolutionWidth != -1)
+		{
+			bool isSelected = (resIndex == -1);
+			std::string customName = WindowUtil::GetLabel(m_customResolutionWidth, m_customResolutionHeight);
+			if (ImGui::Selectable(customName.c_str(), isSelected))
+			{
+				ApplyResolution(m_customResolutionWidth, m_customResolutionHeight);
+			}
+			if (isSelected) ImGui::SetItemDefaultFocus();
+		}
+
 		for (int i = 0; i < WindowUtil::WindowSizesCount; i++)
 		{
-			bool isSelected = (Settings::SelectedResolutionIndex == i);
-			if (ImGui::Selectable(WindowUtil::WindowSizes[i].Name.c_str(), isSelected))
+			bool isSelected = (resIndex == i);
+			std::string resName = WindowUtil::GetLabel(WindowUtil::WindowSizes[i].Width, WindowUtil::WindowSizes[i].Height);
+			if (ImGui::Selectable(resName.c_str(), isSelected))
 			{
-				Settings::SelectedResolutionIndex = i;
-				Settings::Save(m_settingsPath);
-
-				HWND hWnd = FindWindowA("ArenaNet_Dx_Window_Class", NULL);
-				if (!hWnd) hWnd = FindWindowA("ArenaNet_Gr_Window_Class", NULL);
-				if (hWnd && WindowUtil::IsWindowedMode(hWnd))
-				{
-					auto res = WindowUtil::WindowSizes[i];
-					WindowUtil::ResizeAndCenterWindow(hWnd, res.Width, res.Height);
-				}
+				ApplyResolution(WindowUtil::WindowSizes[i].Width, WindowUtil::WindowSizes[i].Height);
 			}
-			if (isSelected)
-			{
-				ImGui::SetItemDefaultFocus();
-			}
+			if (isSelected) ImGui::SetItemDefaultFocus();
 		}
 		ImGui::EndCombo();
+	}
+
+	if (ImGui::Checkbox("Use Vertical Resolution", &Settings::UseVerticalResolution))
+	{
+		Settings::Save(m_settingsPath);
+		ApplyResolution(Settings::ResolutionWidth, Settings::ResolutionHeight);
 	}
 }

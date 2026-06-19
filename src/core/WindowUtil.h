@@ -9,11 +9,16 @@ namespace Nekres::WindowUtil
 	struct WindowSize {
 		int Width;
 		int Height;
-		std::string Name;
 	};
 
 	extern const WindowSize WindowSizes[];
 	extern const int WindowSizesCount;
+
+	WindowSize GetSmallestResolution();
+	WindowSize GetDefaultResolution();
+	std::string GetLabel(int width, int height);
+
+	HWND GetWindowHandle();
 
 	bool IsWindowedMode(HWND hWnd);
 	void ResizeAndCenterWindow(HWND hWnd, int width, int height);

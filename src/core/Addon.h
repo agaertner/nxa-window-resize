@@ -10,6 +10,7 @@
 #include "../imgui/imgui.h"
 #include "../imgui/imgui_extensions.h"
 #include "services/NexusService.h"
+#include "WindowUtil.h"
 namespace Nekres {
 	class Addon
 	{
@@ -28,6 +29,18 @@ namespace Nekres {
 				std::error_code ec;
 				std::filesystem::create_directories(m_addonPath, ec);
 				Settings::Load(m_settingsPath);
+
+				bool isCustom = true;
+				for (int i = 0; i < WindowUtil::WindowSizesCount; ++i) {
+					if (WindowUtil::WindowSizes[i].Width == Settings::ResolutionWidth && WindowUtil::WindowSizes[i].Height == Settings::ResolutionHeight) {
+						isCustom = false;
+						break;
+					}
+				}
+				if (isCustom) {
+					m_customResolutionWidth = Settings::ResolutionWidth;
+					m_customResolutionHeight = Settings::ResolutionHeight;
+				}
 
 				m_api->GUI_Register(RT_Render, AddonRender);
 				m_api->GUI_Register(RT_OptionsRender, AddonOptions);
@@ -64,6 +77,11 @@ namespace Nekres {
 
 			bool m_isWindowedMode = false;
 			std::chrono::steady_clock::time_point m_lastCheckTime = std::chrono::steady_clock::now();
+
+			int m_customResolutionWidth = -1;
+			int m_customResolutionHeight = -1;
+
+			void ApplyResolution(int width, int height);
 
 			static void AddonRender() { m_instance->Render(); }
 			static void AddonOptions() { m_instance->Options(); }

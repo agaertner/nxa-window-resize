@@ -2,8 +2,11 @@
 #include "core/Addon.h"
 #include <filesystem>
 #include <fstream>
+#include "core/WindowUtil.h"
 
-const char* SELECTED_RESOLUTION_INDEX = "SelectedResolutionIndex";
+const char* RESOLUTION_WIDTH = "ResolutionWidth";
+const char* RESOLUTION_HEIGHT = "ResolutionHeight";
+const char* USE_VERTICAL_RESOLUTION = "UseVerticalResolution";
 
 namespace Settings
 {
@@ -30,15 +33,37 @@ namespace Settings
 		}
 		Settings::Mutex.unlock();
 
-		if (!Settings[SELECTED_RESOLUTION_INDEX].is_null())
+		if (!Settings[USE_VERTICAL_RESOLUTION].is_null())
 		{
-			Settings[SELECTED_RESOLUTION_INDEX].get_to<int>(SelectedResolutionIndex);
+			UseVerticalResolution = Settings[USE_VERTICAL_RESOLUTION].get<bool>();
+		}
+
+		if (!Settings[RESOLUTION_WIDTH].is_null() && !Settings[RESOLUTION_HEIGHT].is_null())
+		{
+			int width = Settings[RESOLUTION_WIDTH].get<int>();
+			int height = Settings[RESOLUTION_HEIGHT].get<int>();
+
+			auto smallest = Nekres::WindowUtil::GetSmallestResolution();
+			int minW = UseVerticalResolution ? smallest.Height : smallest.Width;
+			int minH = UseVerticalResolution ? smallest.Width : smallest.Height;
+
+			if (width < minW || height < minH) {
+				auto defaultRes = Nekres::WindowUtil::GetDefaultResolution();
+				ResolutionWidth = defaultRes.Width;
+				ResolutionHeight = defaultRes.Height;
+			} else {
+				ResolutionWidth = width;
+				ResolutionHeight = height;
+			}
 		}
 	}
 	void Save(std::filesystem::path aPath)
 	{
 		Settings::Mutex.lock();
 		{
+			Settings[RESOLUTION_WIDTH] = ResolutionWidth;
+			Settings[RESOLUTION_HEIGHT] = ResolutionHeight;
+			Settings[USE_VERTICAL_RESOLUTION] = UseVerticalResolution;
 			std::ofstream file(aPath);
 			file << Settings.dump(1, '\t') << std::endl;
 			file.close();
@@ -46,5 +71,8 @@ namespace Settings
 		Settings::Mutex.unlock();
 	}
 
-	int SelectedResolutionIndex = 16; // Default to 1920x1080
+	auto defaultRes = Nekres::WindowUtil::GetDefaultResolution();
+	int ResolutionWidth = defaultRes.Width;
+	int ResolutionHeight = defaultRes.Height;
+	bool UseVerticalResolution = false;
 }

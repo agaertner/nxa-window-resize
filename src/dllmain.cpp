@@ -1,6 +1,7 @@
 #include <Windows.h>
 //#include "resource.h"
 #include "Version.h"
+#include "Signature.h"
 #include "core/Addon.h"
 
 void AddonLoad(AddonAPI_t* aApi);
@@ -30,7 +31,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 
 extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef()
 {
-	AddonDef.Signature = 0x04DC65D3;
+	AddonDef.Signature = ADDON_SIGNATURE;
 	AddonDef.APIVersion = NEXUS_API_VERSION;
 	AddonDef.Name = "GW2 Window Resize";
 	AddonDef.Version.Major = V_MAJOR;
@@ -38,7 +39,7 @@ extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef()
 	AddonDef.Version.Build = V_BUILD;
 	AddonDef.Version.Revision = V_REVISION;
 	AddonDef.Author = "Nekres.1943";
-	AddonDef.Description = "Resizes the GW2 window to a preferred size when you are switching to windowed mode.";
+	AddonDef.Description = "Saves & Restores Preferred Window Size for 'Window' mode.";
 	AddonDef.Load = AddonLoad;
 	AddonDef.Unload = AddonUnload;
 	AddonDef.Flags = EAddonFlags::AF_None;

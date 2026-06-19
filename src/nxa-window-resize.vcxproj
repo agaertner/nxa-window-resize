@@ -120,8 +120,11 @@
       <EnableUAC>false</EnableUAC>
     </Link>
     <PreBuildEvent>
-      <Command>powershell -NoProfile -ExecutionPolicy Bypass -Command "$d=Get-Date; $rev=$d.Hour*60+$d.Minute; @('#pragma once', ('#define V_MAJOR ' + $d.Year), ('#define V_MINOR ' + $d.Month), ('#define V_BUILD ' + $d.Day), ('#define V_REVISION ' + $rev)) | Set-Content Version.h -Encoding utf8"</Command>
+      <Command>powershell -NoProfile -ExecutionPolicy Bypass -Command "if (-not (Test-Path Signature.h)) { $sig = '0x' + (-join ((1..8) | ForEach-Object { '{0:X}' -f (Get-Random -Minimum 0 -Maximum 16) })); \"#pragma once`n#define ADDON_SIGNATURE $sig\" | Set-Content Signature.h -Encoding utf8 }; $d=Get-Date; $rev=$d.Hour*60+$d.Minute; @('#pragma once', ('#define V_MAJOR ' + $d.Year), ('#define V_MINOR ' + $d.Month), ('#define V_BUILD ' + $d.Day), ('#define V_REVISION ' + $rev)) | Set-Content Version.h -Encoding utf8"</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>powershell -NoProfile -ExecutionPolicy Bypass -File "$(ProjectDir)deploy.ps1" -TargetPath "$(TargetPath)" -ProjectDir "$(ProjectDir)\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -144,8 +147,11 @@
       <EnableUAC>false</EnableUAC>
     </Link>
     <PreBuildEvent>
-      <Command>powershell -NoProfile -ExecutionPolicy Bypass -Command "$d=Get-Date; $rev=$d.Hour*60+$d.Minute; @('#pragma once', ('#define V_MAJOR ' + $d.Year), ('#define V_MINOR ' + $d.Month), ('#define V_BUILD ' + $d.Day), ('#define V_REVISION ' + $rev)) | Set-Content Version.h -Encoding utf8"</Command>
+      <Command>powershell -NoProfile -ExecutionPolicy Bypass -Command "if (-not (Test-Path Signature.h)) { $sig = '0x' + (-join ((1..8) | ForEach-Object { '{0:X}' -f (Get-Random -Minimum 0 -Maximum 16) })); \"#pragma once`n#define ADDON_SIGNATURE $sig\" | Set-Content Signature.h -Encoding utf8 }; $d=Get-Date; $rev=$d.Hour*60+$d.Minute; @('#pragma once', ('#define V_MAJOR ' + $d.Year), ('#define V_MINOR ' + $d.Month), ('#define V_BUILD ' + $d.Day), ('#define V_REVISION ' + $rev)) | Set-Content Version.h -Encoding utf8"</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>powershell -NoProfile -ExecutionPolicy Bypass -File "$(ProjectDir)deploy.ps1" -TargetPath "$(TargetPath)" -ProjectDir "$(ProjectDir)\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="core\WindowUtil.h" />
@@ -163,6 +169,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Version.h" />
+    <ClInclude Include="Signature.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\WindowUtil.cpp" />
